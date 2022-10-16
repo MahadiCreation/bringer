@@ -18,14 +18,24 @@ services:
 
     frontend:
         build: ./client
-        volumes:
-          - './client:/usr/src/app'
         container_name: frontend
         restart: always
         networks:
           - bridge_network
         depends_on:
           - db
+
+    nginx:
+      build: ./nginx
+      container_name: nginx
+      restart: always
+      networks:
+        - bridge_network
+      depends_on:
+        - backend
+      ports:
+        - "80:80"
+
 
 
     db:
