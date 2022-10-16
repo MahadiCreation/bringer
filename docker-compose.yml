@@ -1,0 +1,55 @@
+version: '3.7'
+
+services:
+    backend:
+        build: ./server
+        container_name: backend
+        restart: always
+        volumes:
+          - ./server:/app
+        ports:
+          - "8000:8000"
+        depends_on:
+          - db
+        networks:
+          - bridge_network
+        environment:
+          DB_URI: mysql+pymysql://root:root@db:3307/flaskshop?charset=utf8mb4
+
+    frontend:
+        build: ./client
+        volumes:
+          - './client:/usr/src/app'
+        container_name: frontend
+        restart: always
+        networks:
+          - bridge_network
+        depends_on:
+          - db
+
+
+    db:
+        image: mysql:latest
+        command:
+        - --default_authentication_plugin=mysql_native_password
+        - --character-set-server=utf8mb4
+        - --collation-server=utf8mb4_unicode_ci
+        volumes:
+          - db_data:/var/lib/mysql
+        restart: unless-stopped
+        ports:
+          - "3306:3306"
+        networks:
+          - bridge_network
+        environment:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: flaskshop
+
+
+
+networks:
+    bridge_network:
+        driver: bridge
+
+volumes:
+    db_data:
